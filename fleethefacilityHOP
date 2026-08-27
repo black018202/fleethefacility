@@ -758,82 +758,6 @@ workspace.DescendantAdded:Connect(function(obj)
         AddComputerESP(obj)
     end
 end)
---------------------------------------------------
--- LÓGICA DE NO FOG / FULLBRIGHT
---------------------------------------------------
-
-local NoFogEnabled = false
-local defaultFogStart = Lighting.FogStart
-local defaultFogEnd = Lighting.FogEnd
-local defaultAmbient = Lighting.Ambient
-local defaultOutdoorAmbient = Lighting.OutdoorAmbient
-local defaultBrightness = Lighting.Brightness
-local defaultGlobalShadows = Lighting.GlobalShadows
-local defaultClockTime = Lighting.ClockTime
-local fogConnections = {}
-
-local function EnableNoFog()
-    defaultFogStart = Lighting.FogStart
-    defaultFogEnd = Lighting.FogEnd
-    defaultAmbient = Lighting.Ambient
-    defaultOutdoorAmbient = Lighting.OutdoorAmbient
-    defaultBrightness = Lighting.Brightness
-    defaultGlobalShadows = Lighting.GlobalShadows
-    defaultClockTime = Lighting.ClockTime
-
-    Lighting.FogStart = 9e9
-    Lighting.FogEnd = 9e9
-    Lighting.Ambient = Color3.fromRGB(255, 255, 255)
-    Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
-    Lighting.Brightness = 2
-    Lighting.GlobalShadows = false
-    Lighting.ClockTime = 14
-
-    for _, v in ipairs(Lighting:GetChildren()) do
-        if v:IsA("Atmosphere") then
-            v.Density = 0
-            v.Haze = 0
-            v.Glare = 0
-        elseif v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("BlurEffect") then
-            v.Enabled = false
-        end
-    end
-
-    fogConnections[1] = Lighting:GetPropertyChangedSignal("FogEnd"):Connect(function()
-        if NoFogEnabled then Lighting.FogEnd = 9e9 end
-    end)
-    fogConnections[2] = Lighting:GetPropertyChangedSignal("Ambient"):Connect(function()
-        if NoFogEnabled then Lighting.Ambient = Color3.fromRGB(255, 255, 255) end
-    end)
-    fogConnections[3] = Lighting:GetPropertyChangedSignal("OutdoorAmbient"):Connect(function()
-        if NoFogEnabled then Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255) end
-    end)
-end
-
-local function DisableNoFog()
-    for _, conn in ipairs(fogConnections) do
-        conn:Disconnect()
-    end
-    fogConnections = {}
-
-    Lighting.FogStart = defaultFogStart
-    Lighting.FogEnd = defaultFogEnd
-    Lighting.Ambient = defaultAmbient
-    Lighting.OutdoorAmbient = defaultOutdoorAmbient
-    Lighting.Brightness = defaultBrightness
-    Lighting.GlobalShadows = defaultGlobalShadows
-    Lighting.ClockTime = defaultClockTime
-
-    for _, v in ipairs(Lighting:GetChildren()) do
-        if v:IsA("Atmosphere") then
-            v.Density = 0.395
-            v.Haze = 0
-            v.Glare = 0
-        elseif v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("BlurEffect") then
-            v.Enabled = true
-        end
-    end
-end
 
 --------------------------------------------------
 -- ADICIONANDO NA ABA VISUALS
@@ -876,11 +800,34 @@ if SavedConfig.ComputerESP then
     AddAllComputers()
 end
 
+-- 3. No Fog / Fullbright
+local NoFogEnabled = false
+local defaultFogStart, defaultFogEnd = Lighting.FogStart, Lighting.FogEnd
+local defaultAmbient, defaultOutdoorAmbient = Lighting.Ambient, Lighting.OutdoorAmbient
+local fogConnections = {}
+
 CreateToggleUI(PageVisuals, "No Fog / Fullbright", function(Value)
     NoFogEnabled = Value
     if Value then
-        EnableNoFog()
+        Lighting.FogStart = 9e9
+        Lighting.FogEnd = 9e9
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+        Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+
+        for _, v in ipairs(Lighting:GetChildren()) do
+            if v:IsA("Atmosphere") then v.Density = 0 elseif v:IsA("PostEffect") then v.Enabled = false end
+        end
+
+        fogConnections[1] = Lighting:GetPropertyChangedSignal("FogEnd"):Connect(function() if NoFogEnabled then Lighting.FogEnd = 9e9 end end)
+        fogConnections[2] = Lighting:GetPropertyChangedSignal("Ambient"):Connect(function() if NoFogEnabled then Lighting.Ambient = Color3.fromRGB(255, 255, 255) end end)
     else
-        DisableNoFog()
+        for _, conn in ipairs(fogConnections) do conn:Disconnect() end
+        fogConnections = {}
+        Lighting.FogStart = defaultFogStart
+        Lighting.FogEnd = defaultFogEnd
+        Lighting.Ambient = defaultAmbient
+        Lighting.OutdoorAmbient = defaultOutdoorAmbient
     end
 end)
