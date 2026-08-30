@@ -1,18 +1,4 @@
-local _1={game:GetService("Players"),game:GetService("UserInputService"),game:GetService("CoreGui"),game:GetService("RunService"),game:GetService("HttpService")}local _2=_1[1]local _3=_1[2]local _4=_1[3]local _5=_1[4]local _6=_1[5]local _7=893973440
-if game.PlaceId~=_7 then if _4:FindFirstChild("AccessDeniedUI")then _4.AccessDeniedUI:Destroy()end
-local _8=Instance.new("ScreenGui")_8.Name="AccessDeniedUI"_8.Parent=_4
-local _9=Instance.new("Frame")_9.Size=UDim2.new(0,320,0,70)_9.Position=UDim2.new(0.5,-160,0.5,-35)_9.BackgroundColor3=Color3.fromRGB(20,20,20)_9.BorderSizePixel=0
-_9.Parent=_8
-Instance.new("UICorner",_9).CornerRadius=UDim.new(0,8)
-local _10=Instance.new("UIStroke")_10.Color=Color3.fromRGB(255,60,60)_10.Thickness=1.5
-_10.Parent=_9
-local _11=Instance.new("TextLabel")_11.Size=UDim2.new(1,-20,1,-20)_11.Position=UDim2.new(0,10,0,10)_11.BackgroundTransparency=1
-_11.Text="Acesso negado\nvocê não esta no flee the facility"
-_11.TextColor3=Color3.fromRGB(255,75,75)_11.Font=Enum.Font.GothamBold
-_11.TextSize=13
-_11.TextWrapped=true
-_11.Parent=_9
-task.delay(5,function()_8:Destroy()end)return end
+local _1={game:GetService("Players"),game:GetService("UserInputService"),game:GetService("CoreGui"),game:GetService("RunService"),game:GetService("HttpService")}local _2=_1[1]local _3=_1[2]local _4=_1[3]local _5=_1[4]local _6=_1[5]
 local _12=_2.LocalPlayer
 if _4:FindFirstChild("DeacoswUI")then _4.DeacoswUI:Destroy()end
 local _13="DracoswMenu_Config.json"
