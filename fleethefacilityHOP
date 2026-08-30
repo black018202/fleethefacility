@@ -21,12 +21,17 @@ local function _15()if isfile and readfile and isfile(_13)then local _16,_17=pca
 local function _20()if writefile then pcall(function()writefile(_13,_6:JSONEncode(_14))end)end end
 _15()
 local _21=Instance.new("ScreenGui")_21.Name="DeacoswUI"_21.Parent=_4
-local _22=Instance.new("TextButton")_22.Size=UDim2.new(0,36,0,36)_22.Position=UDim2.new(0,20,0,20)_22.BackgroundColor3=Color3.fromRGB(15,15,15)_22.Text="≡"
+local _22=Instance.new("TextButton")_22.Size=UDim2.new(0,50,0,50)_22.Position=UDim2.new(0,20,0,20)_22.BackgroundColor3=Color3.fromRGB(15,15,15)_22.Text=""
 _22.TextColor3=Color3.fromRGB(255,255,255)_22.TextSize=22
 _22.Font=Enum.Font.SourceSansBold
 _22.Parent=_21
-Instance.new("UICorner",_22).CornerRadius=UDim.new(0,8)
-local _23=Instance.new("Frame")_23.Size=UDim2.new(0,230,0,285)_23.Position=UDim2.new(0,20,0,65)_23.BackgroundColor3=Color3.fromRGB(18,18,18)_23.BorderSizePixel=0
+Instance.new("UICorner",_22).CornerRadius=UDim.new(1,0)
+local _ToggleButtonImg=Instance.new("ImageLabel")_ToggleButtonImg.Size=UDim2.new(1,0,1,0)_ToggleButtonImg.BackgroundTransparency=1
+_ToggleButtonImg.Image="rbxassetid://115831695189087"
+_ToggleButtonImg.Parent=_22
+Instance.new("UICorner",_ToggleButtonImg).CornerRadius=UDim.new(1,0)
+local _23=Instance.new("Frame")_23.Size=UDim2.new(0,230,0,285)_23.Position=UDim2.new(0,85,0,20)_23.BackgroundColor3=Color3.fromRGB(18,18,18)_23.BorderSizePixel=0
+_23.Visible=false
 _23.Parent=_21
 Instance.new("UICorner",_23).CornerRadius=UDim.new(0,10)
 _22.MouseButton1Click:Connect(function()_23.Visible=not _23.Visible end)
