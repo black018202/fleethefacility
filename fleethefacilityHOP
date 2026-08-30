@@ -1,782 +1,270 @@
-local _env = (getgenv or _G)()
-local _load = _env.loadstring or loadstring
-local _byte = string.byte
-local _char = string.char
-local _sub = string.sub
-local _concat = table.concat
-
-local function _decode(data, key)
-    local out = {}
-    for i = 1, #data do
-        out[i] = _char((_byte(data, i) - (i % key) - 1) % 256)
-    end
-    return _concat(out)
-end
-
--- Script compactado e ofuscado via codificação por blocos de bytes compatível com o ambiente do Delta Executor
-local _payload = [[
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
-local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
-
-local FLEE_THE_FACILITY_ID = 893973440
-
-if game.PlaceId ~= FLEE_THE_FACILITY_ID then
-    if CoreGui:FindFirstChild("AccessDeniedUI") then
-        CoreGui.AccessDeniedUI:Destroy()
-    end
-
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "AccessDeniedUI"
-    ScreenGui.Parent = CoreGui
-
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(0, 320, 0, 70)
-    Frame.Position = UDim2.new(0.5, -160, 0.5, -35)
-    Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    Frame.BorderSizePixel = 0
-    Frame.Parent = ScreenGui
-    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
-
-    local Stroke = Instance.new("UIStroke")
-    Stroke.Color = Color3.fromRGB(255, 60, 60)
-    Stroke.Thickness = 1.5
-    Stroke.Parent = Frame
-
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -20, 1, -20)
-    Label.Position = UDim2.new(0, 10, 0, 10)
-    Label.BackgroundTransparency = 1
-    Label.Text = "Acesso negado\nvocê não esta no flee the facility"
-    Label.TextColor3 = Color3.fromRGB(255, 75, 75)
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 13
-    Label.TextWrapped = true
-    Label.Parent = Frame
-
-    task.delay(5, function()
-        ScreenGui:Destroy()
-    end)
-
-    return
-end
-
-local LocalPlayer = Players.LocalPlayer
-
-if CoreGui:FindFirstChild("DeacoswUI") then
-    CoreGui.DeacoswUI:Destroy()
-end
-
-local CONFIG_FILE = "DracoswMenu_Config.json"
-local SavedConfig = {
-    SpeedEnabled = false,
-    CurrentSpeed = 24,
-    InfiniteJumpEnabled = false,
-    InvisibleEnabled = false,
-    InvisibleKeybind = "E",
-    PlayerESP = false,
-    ComputerESP = false
-}
-
-local function LoadSettings()
-    if isfile and readfile and isfile(CONFIG_FILE) then
-        local success, result = pcall(function()
-            return HttpService:JSONDecode(readfile(CONFIG_FILE))
-        end)
-        if success and type(result) == "table" then
-            for k, v in pairs(result) do
-                SavedConfig[k] = v
-            end
-        end
-    end
-end
-
-local function SaveSettings()
-    if writefile then
-        pcall(function()
-            writefile(CONFIG_FILE, HttpService:JSONEncode(SavedConfig))
-        end)
-    end
-end
-
-LoadSettings()
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "DeacoswUI"
-ScreenGui.Parent = CoreGui
-
-local ToggleButton = Instance.new("TextButton")
-ToggleButton.Size = UDim2.new(0, 36, 0, 36)
-ToggleButton.Position = UDim2.new(0, 20, 0, 20)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-ToggleButton.Text = "≡"
-ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.TextSize = 22
-ToggleButton.Font = Enum.Font.SourceSansBold
-ToggleButton.Parent = ScreenGui
-Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 8)
-
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 230, 0, 285)
-MainFrame.Position = UDim2.new(0, 20, 0, 65)
-MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-MainFrame.BorderSizePixel = 0
-MainFrame.Parent = ScreenGui
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
-
-ToggleButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
-end)
-
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 32)
-Title.BackgroundTransparency = 1
-Title.Text = "Flee The Facility"
-Title.TextColor3 = Color3.fromRGB(240, 240, 240)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 13
-Title.Parent = MainFrame
-
-local TabBar = Instance.new("Frame")
-TabBar.Size = UDim2.new(0.9, 0, 0, 28)
-TabBar.Position = UDim2.new(0.05, 0, 0, 35)
-TabBar.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
-TabBar.BorderSizePixel = 0
-TabBar.Parent = MainFrame
-Instance.new("UICorner", TabBar).CornerRadius = UDim.new(0, 6)
-
-local MainBtn = Instance.new("TextButton")
-MainBtn.Size = UDim2.new(0.5, 0, 1, 0)
-MainBtn.Text = "Main"
-MainBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-MainBtn.Font = Enum.Font.GothamBold
-MainBtn.TextSize = 13
-MainBtn.BackgroundTransparency = 1
-MainBtn.Parent = TabBar
-
-local VisualsBtn = Instance.new("TextButton")
-VisualsBtn.Size = UDim2.new(0.5, 0, 1, 0)
-VisualsBtn.Position = UDim2.new(0.5, 0, 0, 0)
-VisualsBtn.Text = "Visuals"
-VisualsBtn.TextColor3 = Color3.fromRGB(130, 130, 130)
-VisualsBtn.Font = Enum.Font.GothamBold
-VisualsBtn.TextSize = 13
-VisualsBtn.BackgroundTransparency = 1
-VisualsBtn.Parent = TabBar
-
-local PageMain = Instance.new("ScrollingFrame")
-PageMain.Size = UDim2.new(0.9, 0, 0, 190)
-PageMain.Position = UDim2.new(0.05, 0, 0, 68)
-PageMain.BackgroundTransparency = 1
-PageMain.ScrollBarThickness = 2
-PageMain.Parent = MainFrame
-
-local PageVisuals = Instance.new("ScrollingFrame")
-PageVisuals.Size = UDim2.new(0.9, 0, 0, 190)
-PageVisuals.Position = UDim2.new(0.05, 0, 0, 68)
-PageVisuals.BackgroundTransparency = 1
-PageVisuals.Visible = false
-PageVisuals.ScrollBarThickness = 2
-PageVisuals.Parent = MainFrame
-
-local Layout1 = Instance.new("UIListLayout", PageMain)
-Layout1.Padding = UDim.new(0, 6)
-local Layout2 = Instance.new("UIListLayout", PageVisuals)
-Layout2.Padding = UDim.new(0, 6)
-
-MainBtn.MouseButton1Click:Connect(function()
-    PageMain.Visible = true; PageVisuals.Visible = false
-    MainBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    VisualsBtn.TextColor3 = Color3.fromRGB(130, 130, 130)
-end)
-
-VisualsBtn.MouseButton1Click:Connect(function()
-    PageMain.Visible = false; PageVisuals.Visible = true
-    VisualsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    MainBtn.TextColor3 = Color3.fromRGB(130, 130, 130)
-end)
-
-local Credits = Instance.new("TextLabel")
-Credits.Size = UDim2.new(1, 0, 0, 22)
-Credits.Position = UDim2.new(0, 0, 1, -22)
-Credits.BackgroundTransparency = 1
-Credits.Text = "Created By YT @Dracoswor"
-Credits.TextColor3 = Color3.fromRGB(140, 140, 140)
-Credits.Font = Enum.Font.GothamBold
-Credits.TextSize = 11
-Credits.Parent = MainFrame
-
-local function MakeDraggable(frame, handle)
-    handle = handle or frame
-    local dragging, dragInput, dragStart, startPos
-
-    handle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
-    handle.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-end
-
-MakeDraggable(MainFrame, Title)
-
-local function CreateToggleUI(parent, text, defaultState, callback)
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(1, 0, 0, 42)
-    Container.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-    Container.BorderSizePixel = 0
-    Container.Parent = parent
-    Instance.new("UICorner", Container).CornerRadius = UDim.new(0, 6)
-
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(0.65, 0, 1, 0)
-    Label.Position = UDim2.new(0.05, 0, 0, 0)
-    Label.Text = text
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 12
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.BackgroundTransparency = 1
-    Label.Parent = Container
-
-    local Switch = Instance.new("TextButton")
-    Switch.Size = UDim2.new(0, 38, 0, 20)
-    Switch.Position = UDim2.new(0.78, 0, 0.26, 0)
-    Switch.BackgroundColor3 = defaultState and Color3.fromRGB(76, 217, 100) or Color3.fromRGB(50, 50, 50)
-    Switch.Text = ""
-    Switch.Parent = Container
-    Instance.new("UICorner", Switch).CornerRadius = UDim.new(1, 0)
-
-    local Circle = Instance.new("Frame")
-    Circle.Size = UDim2.new(0, 16, 0, 16)
-    Circle.Position = defaultState and UDim2.new(1, -18, 0.1, 0) or UDim2.new(0, 2, 0.1, 0)
-    Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Circle.Parent = Switch
-    Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
-
-    local state = defaultState
-
-    local function updateState(newState)
-        state = newState
-        if state then
-            Switch.BackgroundColor3 = Color3.fromRGB(76, 217, 100)
-            Circle.Position = UDim2.new(1, -18, 0.1, 0)
-        else
-            Switch.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-            Circle.Position = UDim2.new(0, 2, 0.1, 0)
-        end
-        callback(state)
-    end
-
-    Switch.MouseButton1Click:Connect(function()
-        updateState(not state)
-    end)
-
-    return function(newState)
-        updateState(newState)
-    end
-end
-
-local function CreateSpeedToggleUI(parent, text, defaultState, defaultSpeed, toggleCallback, speedCallback)
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(1, 0, 0, 42)
-    Container.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-    Container.BorderSizePixel = 0
-    Container.Parent = parent
-    Instance.new("UICorner", Container).CornerRadius = UDim.new(0, 6)
-
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(0.4, 0, 1, 0)
-    Label.Position = UDim2.new(0.05, 0, 0, 0)
-    Label.Text = text
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 12
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.BackgroundTransparency = 1
-    Label.Parent = Container
-
-    local SpeedInput = Instance.new("TextBox")
-    SpeedInput.Size = UDim2.new(0, 32, 0, 20)
-    SpeedInput.Position = UDim2.new(0.55, 0, 0.26, 0)
-    SpeedInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    SpeedInput.Text = tostring(defaultSpeed)
-    SpeedInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SpeedInput.Font = Enum.Font.GothamBold
-    SpeedInput.TextSize = 11
-    SpeedInput.Parent = Container
-    Instance.new("UICorner", SpeedInput).CornerRadius = UDim.new(0, 4)
-
-    local Switch = Instance.new("TextButton")
-    Switch.Size = UDim2.new(0, 38, 0, 20)
-    Switch.Position = UDim2.new(0.78, 0, 0.26, 0)
-    Switch.BackgroundColor3 = defaultState and Color3.fromRGB(76, 217, 100) or Color3.fromRGB(50, 50, 50)
-    Switch.Text = ""
-    Switch.Parent = Container
-    Instance.new("UICorner", Switch).CornerRadius = UDim.new(1, 0)
-
-    local Circle = Instance.new("Frame")
-    Circle.Size = UDim2.new(0, 16, 0, 16)
-    Circle.Position = defaultState and UDim2.new(1, -18, 0.1, 0) or UDim2.new(0, 2, 0.1, 0)
-    Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Circle.Parent = Switch
-    Instance.new("UICorner", Circle).CornerRadius = UDim.new(1, 0)
-
-    local state = defaultState
-
-    Switch.MouseButton1Click:Connect(function()
-        state = not state
-        if state then
-            Switch.BackgroundColor3 = Color3.fromRGB(76, 217, 100)
-            Circle.Position = UDim2.new(1, -18, 0.1, 0)
-        else
-            Switch.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-            Circle.Position = UDim2.new(0, 2, 0.1, 0)
-        end
-        toggleCallback(state)
-    end)
-
-    SpeedInput.FocusLost:Connect(function()
-        local num = tonumber(SpeedInput.Text)
-        if num then
-            speedCallback(num)
-        else
-            SpeedInput.Text = tostring(defaultSpeed)
-        end
-    end)
-end
-
-local function CreateKeybindUI(parent, text, defaultKey, callback)
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(1, 0, 0, 42)
-    Container.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-    Container.BorderSizePixel = 0
-    Container.Parent = parent
-    Instance.new("UICorner", Container).CornerRadius = UDim.new(0, 6)
-
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(0.6, 0, 1, 0)
-    Label.Position = UDim2.new(0.05, 0, 0, 0)
-    Label.Text = text
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 12
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.BackgroundTransparency = 1
-    Label.Parent = Container
-
-    local KeyBtn = Instance.new("TextButton")
-    KeyBtn.Size = UDim2.new(0, 50, 0, 22)
-    KeyBtn.Position = UDim2.new(0.72, 0, 0.24, 0)
-    KeyBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    KeyBtn.Text = defaultKey
-    KeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    KeyBtn.Font = Enum.Font.GothamBold
-    KeyBtn.TextSize = 11
-    KeyBtn.Parent = Container
-    Instance.new("UICorner", KeyBtn).CornerRadius = UDim.new(0, 4)
-
-    local listening = false
-
-    KeyBtn.MouseButton1Click:Connect(function()
-        listening = true
-        KeyBtn.Text = "..."
-        KeyBtn.TextColor3 = Color3.fromRGB(255, 200, 0)
-    end)
-
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if listening and not gameProcessed then
-            if input.UserInputType == Enum.UserInputType.Keyboard then
-                local keyName = input.KeyCode.Name
-                KeyBtn.Text = keyName
-                KeyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                listening = false
-                callback(keyName)
-            end
-        end
-    end)
-end
-
-local SpeedEnabled = SavedConfig.SpeedEnabled
-local CurrentSpeed = SavedConfig.CurrentSpeed
-
-RunService.RenderStepped:Connect(function()
-    if SpeedEnabled and LocalPlayer.Character then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = CurrentSpeed
-        end
-    elseif LocalPlayer.Character then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid and not SpeedEnabled then
-            if humanoid.WalkSpeed == CurrentSpeed then
-                humanoid.WalkSpeed = 16
-            end
-        end
-    end
-end)
-
-local InfiniteJumpEnabled = SavedConfig.InfiniteJumpEnabled
-
-UserInputService.JumpRequest:Connect(function()
-    if InfiniteJumpEnabled then
-        local character = LocalPlayer.Character
-        if character then
-            local rootPart = character:FindFirstChild("HumanoidRootPart")
-            if rootPart then
-                rootPart.AssemblyLinearVelocity = Vector3.new(rootPart.AssemblyLinearVelocity.X, 35, rootPart.AssemblyLinearVelocity.Z)
-            end
-        end
-    end
-end)
-
-local InvisibleEnabled = SavedConfig.InvisibleEnabled
-local InvisibleKeybind = SavedConfig.InvisibleKeybind
-local hrp0, hrp1, animTrack
-local defaultHipHeight = 0
-local defaultJumpPower = 50
-local defaultJumpHeight = 7.2
-local invConnection
-local noclipConnection
-local setInvisibleUIState
-
-local function EnableInvisible()
-    local character = LocalPlayer.Character
-    if not character then return end
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    hrp0 = character:FindFirstChild("HumanoidRootPart")
-    
-    if not humanoid or not hrp0 or humanoid.RigType ~= Enum.HumanoidRigType.R6 then return end
-
-    defaultHipHeight = humanoid.HipHeight
-    defaultJumpPower = humanoid.JumpPower
-    defaultJumpHeight = humanoid.JumpHeight
-
-    hrp1 = hrp0:Clone()
-
-    character.Parent = nil
-    hrp0.Parent = hrp1
-    if hrp0:FindFirstChild("RootJoint") then
-        hrp0.RootJoint.Part0 = nil
-    end
-    hrp1.Parent = character
-    character.Parent = workspace
-
-    local anim = Instance.new("Animation")
-    anim.AnimationId = "rbxassetid://215384594"
-    animTrack = humanoid:LoadAnimation(anim)
-
-    noclipConnection = RunService.Stepped:Connect(function()
-        if InvisibleEnabled and LocalPlayer.Character then
-            for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end
-    end)
-
-    invConnection = RunService.Heartbeat:Connect(function()
-        if InvisibleEnabled and character and character.Parent then
-            humanoid.HipHeight = 3
-            humanoid.JumpPower = 20
-            animTrack:Play()
-            animTrack:AdjustSpeed(0)
-            animTrack.TimePosition = 0.4
-            hrp0.CFrame = hrp1.CFrame
-            hrp0.Orientation = Vector3.new(90, 0, 0)
-            hrp0.Position = hrp1.Position - Vector3.new(0, hrp0.Size.Y / 2, 0)
-            hrp0.Velocity = hrp1.Velocity
-        end
-    end)
-end
-
-local function DisableInvisible()
-    if noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
-
-    if invConnection then
-        invConnection:Disconnect()
-        invConnection = nil
-    end
-
-    if animTrack then
-        animTrack:Stop()
-        animTrack = nil
-    end
-
-    local character = LocalPlayer.Character
-    if character and hrp0 and hrp1 then
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        character.Parent = nil
-        hrp0.Parent = character
-        if hrp0:FindFirstChild("RootJoint") then
-            hrp0.RootJoint.Part0 = hrp0
-        end
-        hrp1:Destroy()
-        character.Parent = workspace
-        
-        if humanoid then
-            humanoid.HipHeight = defaultHipHeight
-            humanoid.JumpPower = defaultJumpPower
-            humanoid.JumpHeight = defaultJumpHeight
-        end
-    end
-end
-
-CreateSpeedToggleUI(PageMain, "Speed", SavedConfig.SpeedEnabled, SavedConfig.CurrentSpeed, function(Value)
-    SpeedEnabled = Value
-    SavedConfig.SpeedEnabled = Value
-    SaveSettings()
-    if not Value and LocalPlayer.Character then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = 16
-        end
-    end
-end, function(NewSpeed)
-    CurrentSpeed = NewSpeed
-    SavedConfig.CurrentSpeed = NewSpeed
-    SaveSettings()
-    if SpeedEnabled and LocalPlayer.Character then
-        local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = CurrentSpeed
-        end
-    end
-end)
-
-CreateToggleUI(PageMain, "Infinite Jump", SavedConfig.InfiniteJumpEnabled, function(Value)
-    InfiniteJumpEnabled = Value
-    SavedConfig.InfiniteJumpEnabled = Value
-    SaveSettings()
-end)
-
-setInvisibleUIState = CreateToggleUI(PageMain, "Invisible (R6)", SavedConfig.InvisibleEnabled, function(Value)
-    InvisibleEnabled = Value
-    SavedConfig.InvisibleEnabled = Value
-    SaveSettings()
-    if Value then
-        EnableInvisible()
-    else
-        DisableInvisible()
-    end
-end)
-
-CreateKeybindUI(PageMain, "Keybind Invisible", SavedConfig.InvisibleKeybind, function(NewKey)
-    InvisibleKeybind = NewKey
-    SavedConfig.InvisibleKeybind = NewKey
-    SaveSettings()
-end)
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.UserInputType == Enum.UserInputType.Keyboard then
-        if input.KeyCode.Name == InvisibleKeybind then
-            InvisibleEnabled = not InvisibleEnabled
-            SavedConfig.InvisibleEnabled = InvisibleEnabled
-            SaveSettings()
-            if setInvisibleUIState then
-                setInvisibleUIState(InvisibleEnabled)
-            end
-            if InvisibleEnabled then
-                EnableInvisible()
-            else
-                DisableInvisible()
-            end
-        end
-    end
-end)
-
-local function IsBeast(player)
-    local hammer = player.Character and player.Character:FindFirstChild("Hammer")
-    if hammer then return true end
-    if player.Backpack and player.Backpack:FindFirstChild("Hammer") then return true end
-    return false
-end
-
-local PlayerESP = SavedConfig.PlayerESP
-
-local function PlayerHighlight(player)
-    if player == LocalPlayer then return end
-
-    local character = player.Character
-    if not character then return end
-    if character:FindFirstChild("PlayerESP") then return end
-
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "PlayerESP"
-    
-    if IsBeast(player) then
-        highlight.FillColor = Color3.fromRGB(255, 0, 0)
-        highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
-    else
-        highlight.FillColor = Color3.fromRGB(0, 255, 0)
-        highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
-    end
-
-    highlight.FillTransparency = 0.5
-    highlight.OutlineTransparency = 0
-    highlight.Parent = character
-end
-
-local function RemovePlayerESP()
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player.Character then
-            local esp = player.Character:FindFirstChild("PlayerESP")
-            if esp then
-                esp:Destroy()
-            end
-        end
-    end
-end
-
-RunService.Heartbeat:Connect(function()
-    if PlayerESP then
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer and player.Character then
-                local esp = player.Character:FindFirstChild("PlayerESP")
-                if esp then
-                    if IsBeast(player) then
-                        esp.FillColor = Color3.fromRGB(255, 0, 0)
-                        esp.OutlineColor = Color3.fromRGB(255, 0, 0)
-                    else
-                        esp.FillColor = Color3.fromRGB(0, 255, 0)
-                        esp.OutlineColor = Color3.fromRGB(0, 255, 0)
-                    end
-                else
-                    PlayerHighlight(player)
-                end
-            end
-        end
-    end
-end)
-
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function()
-        task.wait(1)
-        if PlayerESP then
-            PlayerHighlight(player)
-        end
-    end)
-end)
-
-local ComputerESP = SavedConfig.ComputerESP
-
-local function IsGameComputer(obj)
-    if not (obj:IsA("Model") or obj:IsA("Folder")) then return false end
-    local name = string.lower(obj.Name)
-    if string.find(name, "computertable") or string.find(name, "computer") then
-        if obj:FindFirstChild("ComputerTrigger") or obj:FindFirstChild("Screen") or obj:FindFirstChild("Keyboard") then
-            return true
-        end
-    end
-    return false
-end
-
-local function AddComputerESP(obj)
-    if not ComputerESP then return end
-    if not IsGameComputer(obj) then return end
-    if obj:FindFirstChild("ComputerESP") then return end
-
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "ComputerESP"
-    highlight.FillColor = Color3.fromRGB(0, 150, 255)
-    highlight.OutlineColor = Color3.fromRGB(0, 255, 255)
-    highlight.FillTransparency = 0.4
-    highlight.OutlineTransparency = 0
-    highlight.Parent = obj
-end
-
-local function AddAllComputers()
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        AddComputerESP(obj)
-    end
-end
-
-local function RemoveComputerESP()
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        local esp = obj:FindFirstChild("ComputerESP")
-        if esp then
-            esp:Destroy()
-        end
-    end
-end
-
-workspace.DescendantAdded:Connect(function(obj)
-    if ComputerESP then
-        task.wait(0.5)
-        AddComputerESP(obj)
-    end
-end)
-
-CreateToggleUI(PageVisuals, "ESP Players", SavedConfig.PlayerESP, function(Value)
-    PlayerESP = Value
-    SavedConfig.PlayerESP = Value
-    SaveSettings()
-    if Value then
-        for _, player in ipairs(Players:GetPlayers()) do
-            PlayerHighlight(player)
-        end
-    else
-        RemovePlayerESP()
-    end
-end)
-
-CreateToggleUI(PageVisuals, "ESP Computadores", SavedConfig.ComputerESP, function(Value)
-    ComputerESP = Value
-    SavedConfig.ComputerESP = Value
-    SaveSettings()
-    if Value then
-        AddAllComputers()
-    else
-        RemoveComputerESP()
-    end
-end)
-
-if SavedConfig.InvisibleEnabled then
-    EnableInvisible()
-end
-if SavedConfig.PlayerESP then
-    for _, player in ipairs(Players:GetPlayers()) do
-        PlayerHighlight(player)
-    end
-end
-if SavedConfig.ComputerESP then
-    AddAllComputers()
-end
-]]
-
-local _success, _compiled = pcall(function()
-    return _load(_payload)
-end)
-
-if _success and type(_compiled) == "function" then
-    task.spawn(_compiled)
-else
-    warn("[Dracosw] Erro ao carregar o script protegido.")
-end
+local _1={game:GetService("Players"),game:GetService("UserInputService"),game:GetService("CoreGui"),game:GetService("RunService"),game:GetService("HttpService")}local _2=_1[1]local _3=_1[2]local _4=_1[3]local _5=_1[4]local _6=_1[5]local _7=893973440
+if game.PlaceId~=_7 then if _4:FindFirstChild("AccessDeniedUI")then _4.AccessDeniedUI:Destroy()end
+local _8=Instance.new("ScreenGui")_8.Name="AccessDeniedUI"_8.Parent=_4
+local _9=Instance.new("Frame")_9.Size=UDim2.new(0,320,0,70)_9.Position=UDim2.new(0.5,-160,0.5,-35)_9.BackgroundColor3=Color3.fromRGB(20,20,20)_9.BorderSizePixel=0
+_9.Parent=_8
+Instance.new("UICorner",_9).CornerRadius=UDim.new(0,8)
+local _10=Instance.new("UIStroke")_10.Color=Color3.fromRGB(255,60,60)_10.Thickness=1.5
+_10.Parent=_9
+local _11=Instance.new("TextLabel")_11.Size=UDim2.new(1,-20,1,-20)_11.Position=UDim2.new(0,10,0,10)_11.BackgroundTransparency=1
+_11.Text="Acesso negado\nvocê não esta no flee the facility"
+_11.TextColor3=Color3.fromRGB(255,75,75)_11.Font=Enum.Font.GothamBold
+_11.TextSize=13
+_11.TextWrapped=true
+_11.Parent=_9
+task.delay(5,function()_8:Destroy()end)return end
+local _12=_2.LocalPlayer
+if _4:FindFirstChild("DeacoswUI")then _4.DeacoswUI:Destroy()end
+local _13="DracoswMenu_Config.json"
+local _14={SpeedEnabled=false,CurrentSpeed=24,InfiniteJumpEnabled=false,InvisibleEnabled=false,InvisibleKeybind="F",PlayerESP=false,ComputerESP=false}
+local function _15()if isfile and readfile and isfile(_13)then local _16,_17=pcall(function()return _6:JSONDecode(readfile(_13))end)if _16 and type(_17)=="table"then for _18,_19 in pairs(_17)do _14[_18]=_19 end end end end
+local function _20()if writefile then pcall(function()writefile(_13,_6:JSONEncode(_14))end)end end
+_15()
+local _21=Instance.new("ScreenGui")_21.Name="DeacoswUI"_21.Parent=_4
+local _22=Instance.new("TextButton")_22.Size=UDim2.new(0,36,0,36)_22.Position=UDim2.new(0,20,0,20)_22.BackgroundColor3=Color3.fromRGB(15,15,15)_22.Text="≡"
+_22.TextColor3=Color3.fromRGB(255,255,255)_22.TextSize=22
+_22.Font=Enum.Font.SourceSansBold
+_22.Parent=_21
+Instance.new("UICorner",_22).CornerRadius=UDim.new(0,8)
+local _23=Instance.new("Frame")_23.Size=UDim2.new(0,230,0,285)_23.Position=UDim2.new(0,20,0,65)_23.BackgroundColor3=Color3.fromRGB(18,18,18)_23.BorderSizePixel=0
+_23.Parent=_21
+Instance.new("UICorner",_23).CornerRadius=UDim.new(0,10)
+_22.MouseButton1Click:Connect(function()_23.Visible=not _23.Visible end)
+local _24=Instance.new("TextLabel")_24.Size=UDim2.new(1,0,0,32)_24.BackgroundTransparency=1
+_24.Text="Flee The Facility"
+_24.TextColor3=Color3.fromRGB(240,240,240)_24.Font=Enum.Font.GothamBold
+_24.TextSize=13
+_24.Parent=_23
+local _25=Instance.new("Frame")_25.Size=UDim2.new(0.9,0,0,28)_25.Position=UDim2.new(0.05,0,0,35)_25.BackgroundColor3=Color3.fromRGB(32,32,32)_25.BorderSizePixel=0
+_25.Parent=_23
+Instance.new("UICorner",_25).CornerRadius=UDim.new(0,6)
+local _26=Instance.new("TextButton")_26.Size=UDim2.new(0.5,0,1,0)_26.Text="Main"
+_26.TextColor3=Color3.fromRGB(255,255,255)_26.Font=Enum.Font.GothamBold
+_26.TextSize=13
+_26.BackgroundTransparency=1
+_26.Parent=_25
+local _27=Instance.new("TextButton")_27.Size=UDim2.new(0.5,0,1,0)_27.Position=UDim2.new(0.5,0,0,0)_27.Text="Visuals"
+_27.TextColor3=Color3.fromRGB(130,130,130)_27.Font=Enum.Font.GothamBold
+_27.TextSize=13
+_27.BackgroundTransparency=1
+_27.Parent=_25
+local _28=Instance.new("ScrollingFrame")_28.Size=UDim2.new(0.9,0,0,190)_28.Position=UDim2.new(0.05,0,0,68)_28.BackgroundTransparency=1
+_28.ScrollBarThickness=2
+_28.Parent=_23
+local _29=Instance.new("ScrollingFrame")_29.Size=UDim2.new(0.9,0,0,190)_29.Position=UDim2.new(0.05,0,0,68)_29.BackgroundTransparency=1
+_29.Visible=false
+_29.ScrollBarThickness=2
+_29.Parent=_23
+local _30=Instance.new("UIListLayout",_28)_30.Padding=UDim.new(0,6)
+local _31=Instance.new("UIListLayout",_29)_31.Padding=UDim.new(0,6)
+_26.MouseButton1Click:Connect(function()_28.Visible=true _29.Visible=false
+_26.TextColor3=Color3.fromRGB(255,255,255)_27.TextColor3=Color3.fromRGB(130,130,130)end)
+_27.MouseButton1Click:Connect(function()_28.Visible=false _29.Visible=true
+_27.TextColor3=Color3.fromRGB(255,255,255)_26.TextColor3=Color3.fromRGB(130,130,130)end)
+local _32=Instance.new("TextLabel")_32.Size=UDim2.new(1,0,0,22)_32.Position=UDim2.new(0,0,1,-22)_32.BackgroundTransparency=1
+_32.Text="Created By YT Dracoswor"
+_32.TextColor3=Color3.fromRGB(140,140,140)_32.Font=Enum.Font.GothamBold
+_32.TextSize=11
+_32.Parent=_23
+local function _33(_34,_35)_35=_35 or _34
+local _36,_37,_38,_39
+_35.InputBegan:Connect(function(_40)if _40.UserInputType==Enum.UserInputType.MouseButton1 or _40.UserInputType==Enum.UserInputType.Touch then _36=true
+_38=_40.Position
+_39=_34.Position
+_40.Changed:Connect(function()if _40.UserInputState==Enum.UserInputState.End then _36=false end end)end end)
+_35.InputChanged:Connect(function(_40)if _40.UserInputType==Enum.UserInputType.MouseMovement or _40.UserInputType==Enum.UserInputType.Touch then _37=_40 end end)
+_3.InputChanged:Connect(function(_40)if _40==_37 and _36 then local _41=_40.Position-_38
+_34.Position=UDim2.new(_39.X.Scale,_39.X.Offset+_41.X,_39.Y.Scale,_39.Y.Offset+_41.Y)end end)end
+_33(_23,_24)
+local function _42(_43,_44,_45,_46)local _47=Instance.new("Frame")_47.Size=UDim2.new(1,0,0,42)_47.BackgroundColor3=Color3.fromRGB(28,28,28)_47.BorderSizePixel=0
+_47.Parent=_43
+Instance.new("UICorner",_47).CornerRadius=UDim.new(0,6)
+local _48=Instance.new("TextLabel")_48.Size=UDim2.new(0.65,0,1,0)_48.Position=UDim2.new(0.05,0,0,0)_48.Text=_44
+_48.TextColor3=Color3.fromRGB(255,255,255)_48.Font=Enum.Font.GothamBold
+_48.TextSize=12
+_48.TextXAlignment=Enum.TextXAlignment.Left
+_48.BackgroundTransparency=1
+_48.Parent=_47
+local _49=Instance.new("TextButton")_49.Size=UDim2.new(0,38,0,20)_49.Position=UDim2.new(0.78,0,0.26,0)_49.BackgroundColor3=_45 and Color3.fromRGB(76,217,100)or Color3.fromRGB(50,50,50)_49.Text=""
+_49.Parent=_47
+Instance.new("UICorner",_49).CornerRadius=UDim.new(1,0)
+local _50=Instance.new("Frame")_50.Size=UDim2.new(0,16,0,16)_50.Position=_45 and UDim2.new(1,-18,0.1,0)or UDim2.new(0,2,0.1,0)_50.BackgroundColor3=Color3.fromRGB(255,255,255)_50.Parent=_49
+Instance.new("UICorner",_50).CornerRadius=UDim.new(1,0)
+local _51=_45
+local function _52(_53)_51=_53
+if _51 then _49.BackgroundColor3=Color3.fromRGB(76,217,100)_50.Position=UDim2.new(1,-18,0.1,0)else _49.BackgroundColor3=Color3.fromRGB(50,50,50)_50.Position=UDim2.new(0,2,0.1,0)end
+_46(_51)end
+_49.MouseButton1Click:Connect(function()_52(not _51)end)
+return function(_53)_52(_53)end end
+local function _54(_43,_44,_45,_55,_56,_57)local _47=Instance.new("Frame")_47.Size=UDim2.new(1,0,0,42)_47.BackgroundColor3=Color3.fromRGB(28,28,28)_47.BorderSizePixel=0
+_47.Parent=_43
+Instance.new("UICorner",_47).CornerRadius=UDim.new(0,6)
+local _48=Instance.new("TextLabel")_48.Size=UDim2.new(0.4,0,1,0)_48.Position=UDim2.new(0.05,0,0,0)_48.Text=_44
+_48.TextColor3=Color3.fromRGB(255,255,255)_48.Font=Enum.Font.GothamBold
+_48.TextSize=12
+_48.TextXAlignment=Enum.TextXAlignment.Left
+_48.BackgroundTransparency=1
+_48.Parent=_47
+local _58=Instance.new("TextBox")_58.Size=UDim2.new(0,32,0,20)_58.Position=UDim2.new(0.55,0,0.26,0)_58.BackgroundColor3=Color3.fromRGB(40,40,40)_58.Text=tostring(_55)
+_58.TextColor3=Color3.fromRGB(255,255,255)_58.Font=Enum.Font.GothamBold
+_58.TextSize=11
+_58.Parent=_47
+Instance.new("UICorner",_58).CornerRadius=UDim.new(0,4)
+local _49=Instance.new("TextButton")_49.Size=UDim2.new(0,38,0,20)_49.Position=UDim2.new(0.78,0,0.26,0)_49.BackgroundColor3=_45 and Color3.fromRGB(76,217,100)or Color3.fromRGB(50,50,50)_49.Text=""
+_49.Parent=_47
+Instance.new("UICorner",_49).CornerRadius=UDim.new(1,0)
+local _50=Instance.new("Frame")_50.Size=UDim2.new(0,16,0,16)_50.Position=_45 and UDim2.new(1,-18,0.1,0)or UDim2.new(0,2,0.1,0)_50.BackgroundColor3=Color3.fromRGB(255,255,255)_50.Parent=_49
+Instance.new("UICorner",_50).CornerRadius=UDim.new(1,0)
+local _51=_45
+_49.MouseButton1Click:Connect(function()_51=not _51
+if _51 then _49.BackgroundColor3=Color3.fromRGB(76,217,100)_50.Position=UDim2.new(1,-18,0.1,0)else _49.BackgroundColor3=Color3.fromRGB(50,50,50)_50.Position=UDim2.new(0,2,0.1,0)end
+_56(_51)end)
+_58.FocusLost:Connect(function()local _59=tonumber(_58.Text)if _59 then _57(_59)else _58.Text=tostring(_55)end end)end
+local function _60(_43,_44,_61,_46)local _47=Instance.new("Frame")_47.Size=UDim2.new(1,0,0,42)_47.BackgroundColor3=Color3.fromRGB(28,28,28)_47.BorderSizePixel=0
+_47.Parent=_43
+Instance.new("UICorner",_47).CornerRadius=UDim.new(0,6)
+local _48=Instance.new("TextLabel")_48.Size=UDim2.new(0.6,0,1,0)_48.Position=UDim2.new(0.05,0,0,0)_48.Text=_44
+_48.TextColor3=Color3.fromRGB(255,255,255)_48.Font=Enum.Font.GothamBold
+_48.TextSize=12
+_48.TextXAlignment=Enum.TextXAlignment.Left
+_48.BackgroundTransparency=1
+_48.Parent=_47
+local _62=Instance.new("TextButton")_62.Size=UDim2.new(0,50,0,22)_62.Position=UDim2.new(0.72,0,0.24,0)_62.BackgroundColor3=Color3.fromRGB(45,45,45)_62.Text=_61
+_62.TextColor3=Color3.fromRGB(255,255,255)_62.Font=Enum.Font.GothamBold
+_62.TextSize=11
+_62.Parent=_47
+Instance.new("UICorner",_62).CornerRadius=UDim.new(0,4)
+local _63=false
+_62.MouseButton1Click:Connect(function()_63=true
+_62.Text="..."
+_62.TextColor3=Color3.fromRGB(255,200,0)end)
+_3.InputBegan:Connect(function(_40,_64)if _63 and not _64 then if _40.UserInputType==Enum.UserInputType.Keyboard then local _65=_40.KeyCode.Name
+_62.Text=_65
+_62.TextColor3=Color3.fromRGB(255,255,255)_63=false
+_46(_65)end end end)end
+local _66=_14.SpeedEnabled
+local _67=_14.CurrentSpeed
+_5.RenderStepped:Connect(function()if _66 and _12.Character then local _68=_12.Character:FindFirstChildOfClass("Humanoid")if _68 then _68.WalkSpeed=_67 end elseif _12.Character then local _68=_12.Character:FindFirstChildOfClass("Humanoid")if _68 and not _66 then if _68.WalkSpeed==_67 then _68.WalkSpeed=16 end end end end)
+local _69=_14.InfiniteJumpEnabled
+_3.JumpRequest:Connect(function()if _69 then local _70=_12.Character
+if _70 then local _71=_70:FindFirstChild("HumanoidRootPart")if _71 then _71.AssemblyLinearVelocity=Vector3.new(_71.AssemblyLinearVelocity.X,35,_71.AssemblyLinearVelocity.Z)end end end end)
+local _72=_14.InvisibleEnabled
+local _73=Enum.KeyCode[_14.InvisibleKeybind]or Enum.KeyCode.F
+local _74=nil
+local _75=nil
+local _76,_77,_78,_79,_80
+local _81,_82,_83
+local _84={}
+local _85
+local function _86()if _72 then return end
+_79=_12.Character or _12.CharacterAdded:Wait()
+_80=_79:FindFirstChildOfClass("Humanoid")if not _80 or _80.RigType~=Enum.HumanoidRigType.R6 then return end
+_76=_79:FindFirstChild("HumanoidRootPart")if not _76 then return end
+_72=true
+_14.InvisibleEnabled=true
+_20()
+if _85 then _85(true)end
+_81=_80.HipHeight
+_82=_80.JumpPower
+if _80.UseJumpPower==false then _83=_80.JumpHeight end
+_84={}
+for _,_19 in ipairs(_79:GetDescendants())do if _19:IsA("BasePart")then _84[_19]=_19.CanCollide end end
+_77=_76:Clone()
+_79.Parent=nil
+_76.Parent=_77
+if _76:FindFirstChild("RootJoint")then _76.RootJoint.Part0=nil end
+_77.Parent=_79
+_79.Parent=workspace
+local _87=Instance.new("Animation")_87.AnimationId="rbxassetid://215384594"
+_78=_80:LoadAnimation(_87)
+_75=_5.Stepped:Connect(function()if _79 and _79.Parent then for _,_19 in ipairs(_79:GetDescendants())do if _19:IsA("BasePart")and _19.Name~="HumanoidRootPart"then _19.CanCollide=false end end end end)
+_74=_5.Heartbeat:Connect(function()if not _79 or not _79.Parent or not _80 or not _76 or not _77 then return end
+_80.HipHeight=3
+_80.UseJumpPower=true
+_80.JumpPower=50
+if not _78.IsPlaying then _78:Play()_78:AdjustSpeed(0)_78.TimePosition=0.4 end
+_76.CFrame=_77.CFrame
+_76.Orientation=Vector3.new(90,0,0)
+_76.Position=_77.Position-Vector3.new(0,_76.Size.Y/2,0)
+_76.Velocity=_77.Velocity end)end
+local function _88()if not _72 then return end
+_72=false
+_14.InvisibleEnabled=false
+_20()
+if _85 then _85(false)end
+if _75 then _75:Disconnect()_75=nil end
+if _74 then _74:Disconnect()_74=nil end
+if _78 then _78:Stop()_78=nil end
+if _79 and _80 then _80.HipHeight=_81 or 0
+if _82 then _80.JumpPower=_82 end
+if _83 then _80.UseJumpPower=false
+_80.JumpHeight=_83 end
+for _,_19 in ipairs(_79:GetDescendants())do if _19:IsA("BasePart")then if _19.Name=="HumanoidRootPart"then _19.CanCollide=false else if _84[_19]~=nil then _19.CanCollide=_84[_19]else _19.CanCollide=true end end end end
+local _89=_79:FindFirstChild("Torso")if _76 and _77 then local _90=_77.CFrame
+_79.Parent=nil
+_76.Parent=_79
+_76.CFrame=_90
+local _91=_76:FindFirstChild("RootJoint")if _91 and _89 then _91.Part0=_76
+_91.Part1=_89 end
+_77:Destroy()_77=nil
+_79.Parent=workspace end end end
+local function _92()if _72 then _88()else _86()end end
+_54(_28,"Speed",_14.SpeedEnabled,_14.CurrentSpeed,function(_93)_66=_93
+_14.SpeedEnabled=_93
+_20()
+if not _93 and _12.Character then local _68=_12.Character:FindFirstChildOfClass("Humanoid")if _68 then _68.WalkSpeed=16 end end end,function(_94)_67=_94
+_14.CurrentSpeed=_94
+_20()
+if _66 and _12.Character then local _68=_12.Character:FindFirstChildOfClass("Humanoid")if _68 then _68.WalkSpeed=_67 end end end)
+_42(_28,"Infinite Jump",_14.InfiniteJumpEnabled,function(_93)_69=_93
+_14.InfiniteJumpEnabled=_93
+_20()end)
+_85=_42(_28,"Invisible (R6)",_14.InvisibleEnabled,function(_93)if _93 then _86()else _88()end end)
+_60(_28,"Keybind Invisible",_14.InvisibleKeybind,function(_95)local _96=Enum.KeyCode[_95]if _96 then _73=_96
+_14.InvisibleKeybind=_95
+_20()end end)
+_3.InputBegan:Connect(function(_40,_64)if _64 then return end
+if _40.UserInputType==Enum.UserInputType.Keyboard then if _40.KeyCode==_73 then _92()end end end)
+local function _97(_98)local _99=_98.Character and _98.Character:FindFirstChild("Hammer")if _99 then return true end
+if _98.Backpack and _98.Backpack:FindFirstChild("Hammer")then return true end
+return false end
+local _100=_14.PlayerESP
+local function _101(_98)if _98==_12 then return end
+local _70=_98.Character
+if not _70 then return end
+if _70:FindFirstChild("PlayerESP")then return end
+local _102=Instance.new("Highlight")_102.Name="PlayerESP"
+if _97(_98)then _102.FillColor=Color3.fromRGB(255,0,0)_102.OutlineColor=Color3.fromRGB(255,0,0)else _102.FillColor=Color3.fromRGB(0,255,0)_102.OutlineColor=Color3.fromRGB(0,255,0)end
+_102.FillTransparency=0.5
+_102.OutlineTransparency=0
+_102.Parent=_70 end
+local function _103()for _,_98 in ipairs(_2:GetPlayers())do if _98.Character then local _104=_98.Character:FindFirstChild("PlayerESP")if _104 then _104:Destroy()end end end end
+_5.Heartbeat:Connect(function()if _100 then for _,_98 in ipairs(_2:GetPlayers())do if _98~=_12 and _98.Character then local _104=_98.Character:FindFirstChild("PlayerESP")if _104 then if _97(_98)then _104.FillColor=Color3.fromRGB(255,0,0)_104.OutlineColor=Color3.fromRGB(255,0,0)else _104.FillColor=Color3.fromRGB(0,255,0)_104.OutlineColor=Color3.fromRGB(0,255,0)end else _101(_98)end end end end end)
+_2.PlayerAdded:Connect(function(_98)_98.CharacterAdded:Connect(function()task.wait(1)if _100 then _101(_98)end end)end)
+local _105=_14.ComputerESP
+local function _106(_107)if not(_107:IsA("Model")or _107:IsA("Folder"))then return false end
+local _108=string.lower(_107.Name)if string.find(_108,"computertable")or string.find(_108,"computer")then if _107:FindFirstChild("ComputerTrigger")or _107:FindFirstChild("Screen")or _107:FindFirstChild("Keyboard")then return true end end
+return false end
+local function _109(_107)if not _105 then return end
+if not _106(_107)then return end
+if _107:FindFirstChild("ComputerESP")then return end
+local _102=Instance.new("Highlight")_102.Name="ComputerESP"
+_102.FillColor=Color3.fromRGB(0,150,255)
+_102.OutlineColor=Color3.fromRGB(0,255,255)
+_102.FillTransparency=0.4
+_102.OutlineTransparency=0
+_102.Parent=_107 end
+local function _110()for _,_107 in ipairs(workspace:GetDescendants())do _109(_107)end end
+local function _111()for _,_107 in ipairs(workspace:GetDescendants())do local _104=_107:FindFirstChild("ComputerESP")if _104 then _104:Destroy()end end end
+workspace.DescendantAdded:Connect(function(_107)if _105 then task.wait(0.5)_109(_107)end end)
+_42(_29,"ESP Players",_14.PlayerESP,function(_93)_100=_93
+_14.PlayerESP=_93
+_20()
+if _93 then for _,_98 in ipairs(_2:GetPlayers())do _101(_98)end else _103()end end)
+_42(_29,"ESP Computadores",_14.ComputerESP,function(_93)_105=_93
+_14.ComputerESP=_93
+_20()
+if _93 then _110()else _111()end end)
+if _14.InvisibleEnabled then _86()end
+if _14.PlayerESP then for _,_98 in ipairs(_2:GetPlayers())do _101(_98)end end
+if _14.ComputerESP then _110()end
